@@ -1,78 +1,74 @@
 class Grep
-  def initialize(file_name)
-    @file_name = file_name
-    @files = Array.new
-    @file_name.each do |file|
-      @files << File.open(file, "r")
-    end
-  end
-
-  def print_matching_lines_number(seacrh_word, number, file_name, revert, registr, lines)
+  def Grep.grep(seacrh_word, flags, files)
+    result = ""
     index_file = 0
-    @files.each do |curr_file|
+    number = false
+    file_name = false
+    registr = true
+    revert = false
+    lines = false
+    flags.each do |argument|
+      if argument.eql?("-n")
+        number = true
+        file_name = false
+        lines = false
+      end
+      if argument.eql?("-l")
+        number = false
+        file_name = true
+        lines = false
+      end
+      registr = false if argument.eql?("-i")
+      revert = true if argument.eql?("-v")
+      lines = true if argument.eql?("-x")
+    end
+    files.each do |curr_file|
+      o_file = File.open(curr_file, "r")
       index_line = 0
       flag = 0
-      puts "Searching in #{@file_name[index_file]}..."
-      curr_file.each do |line|
-        line.downcase! unless registr
+      o_file.each do |line|
+        line1 = line
+        line1 = line.downcase unless registr
         seacrh_word.downcase! unless registr
         index_line += 1
         if number
           unless revert
-            puts "#{index_line}: #{line}" unless line.match(/#{seacrh_word}/).nil?
+            result << "#{files[index_file]}:".chomp if (files.size > 1 && !line1.match(/#{seacrh_word}/).nil?)
+            result << "#{index_line}:#{line}" unless line1.match(/#{seacrh_word}/).nil?
           else
-            puts "#{index_line}: #{line}" if line.match(/#{seacrh_word}/).nil?
+            result << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/#{seacrh_word}/).nil?)
+            result << "#{index_line}:#{line}" if line1.match(/#{seacrh_word}/).nil?
           end
-        end
-        if file_name
+        elsif file_name
           unless revert
-            flag = 1 unless line.match(/#{seacrh_word}/).nil?
+            flag = 1 unless line1.match(/#{seacrh_word}/).nil?
           else
-            flag = 1 if line.match(/#{seacrh_word}/).nil?
+            flag = 1 if line1.match(/#{seacrh_word}/).nil?
           end
-        end
-        if lines
+        elsif lines
           unless revert
-            puts "#{index_line}: #{line}" if line.match(/^#{seacrh_word}$/)
+            result << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/^#{seacrh_word}$/))
+            result << "#{line}" if line1.match(/^#{seacrh_word}$/)
           else
-            puts "#{index_line}: #{line}" unless line.match(/^#{seacrh_word}$/)
+            result << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/^#{seacrh_word}$/).nil?)
+            result << "#{line}" unless line1.match(/^#{seacrh_word}$/)
+          end
+        else
+          unless revert
+            result << "#{files[index_file]}:".chomp if (files.size > 1 && !line1.match(/#{seacrh_word}/).nil?)
+            result << "#{line}" unless line1.match(/#{seacrh_word}/).nil?
+          else
+            result << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/#{seacrh_word}/).nil?)
+            result << "#{line}" if line1.match(/#{seacrh_word}/).nil?
           end
         end
       end
-      puts "#{@file_name[index_file]}" if (flag ==1 && file_name)
-      curr_file.close
+      result << "#{files[index_file]}\n" if flag == 1
+      o_file.close
       index_file += 1
     end
-  end
-end
-name_of_file = []
-word = ""
-number = false
-file_name = false
-registr = true
-revert = false
-lines = false
-
-ARGV.each do |argument|
-  case argument
-    when "-n"
-      number = true
-    when "-l"
-      file_name = true
-    when "-i"
-      registr = false
-    when "-v"
-      revert = true
-    when "-x"
-      revert = true
-  end
-  if argument.match(/.txt/)
-    name_of_file << argument
-  end
-  if argument.match(/--find=/)
-    word = argument.gsub('--find=', '')
+    result.chomp
   end
 end
 
-grep = Grep.new(name_of_file)
-grep.print_matching_lines_number(word, number, file_name, revert, registr, lines)
+puts Grep.grep("World", ["-n"], ["file1.txt", "file2.txt"])
