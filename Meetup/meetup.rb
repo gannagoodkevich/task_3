@@ -63,13 +63,11 @@ class Meetup
       if @month == 12
         curr_date = Date.new(@year, @month, 31)
         while curr_date.cwday != day_index
-          puts curr_date
           curr_date = curr_date - 1
         end
       else
         curr_date = Date.new(@year, @month+1, 1).prev_day
         while curr_date.cwday != day_index
-          puts curr_date
           curr_date = curr_date - 1
         end
       end
