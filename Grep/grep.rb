@@ -70,5 +70,3 @@ class Grep
     result.chomp
   end
 end
-
-puts Grep.grep("World", ["-n"], ["file1.txt", "file2.txt"])
