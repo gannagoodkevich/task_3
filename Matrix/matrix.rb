@@ -1,46 +1,46 @@
-class Matrix
-  def initialize(*str)
-    @str = str
-  end
+=begin
+Write your code for the 'Matrix' exercise in this file. Make the tests in
+`matrix_test.rb` pass.
 
-  def add(str)
-    @str << str
-    puts "HEllO #{@str}"
+To get started with TDD, see the `README.md` file in your
+`ruby/matrix` directory.
+=end
+
+class Matrix
+  def initialize(str)
+    @str = str
+    to_matrix
   end
 
   def to_matrix
     @col = Array.new
+    @str = @str.split("\n")
     @str.each do |s|
       @col << s.split(' ')
     end
   end
 
-  def puts_rows
-    puts "Rows:"
+  def rows
+    ans = []
     for i in 0...@col.size
+      mmm = []
       for j in 0...@col[0].size
-        print "#{@col[i][j]}"
+        mmm << @col[i][j].to_i
       end
-      puts ";"
+      ans << mmm
     end
+    return ans
   end
 
-  def puts_columns
-    puts "Columns:"
+  def columns
+    ans = []
     for i in 0...@col[0].size
+      mmm = []
       for j in 0...@col.size
-        print "#{@col[j][i]}"
+        mmm << @col[j][i].to_i
       end
-      puts ";"
+      ans << mmm
     end
+    return ans
   end
 end
-
-puts "Enter matrix. Type END to stop input"
-m = Matrix.new()
-while((string = gets.chomp) && !string.eql?("END"))
-  m.add(string)
-end
-m.to_matrix
-m.puts_rows
-m.puts_columns
