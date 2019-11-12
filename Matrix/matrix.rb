@@ -12,14 +12,6 @@ class Matrix
     to_matrix
   end
 
-  def to_matrix
-    @col = Array.new
-    @str = @str.split("\n")
-    @str.each do |s|
-      @col << s.split(' ')
-    end
-  end
-
   def rows
     ans = []
     for i in 0...@col.size
@@ -42,5 +34,15 @@ class Matrix
       ans << mmm
     end
     return ans
+  end
+  
+  private
+
+  def to_matrix
+    @col = Array.new
+    @str = @str.split("\n")
+    @str.each do |s|
+      @col << s.split(' ')
+    end
   end
 end
