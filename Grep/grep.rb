@@ -4,21 +4,21 @@ class Grep
     index_file = 0
     number = false
     file_name = false
-    registr = true
+    registr_sensetive = true
     revert = false
     lines = false
     flags.each do |argument|
-      if argument.eql?("-n")
+      case argument
+      when "-n"
         number = true
         file_name = false
         lines = false
-      end
-      if argument.eql?("-l")
+      when "-l"
         number = false
         file_name = true
         lines = false
       end
-      registr = false if argument.eql?("-i")
+      registr_sensetive = flase if argument.eql?("-i")
       revert = true if argument.eql?("-v")
       lines = true if argument.eql?("-x")
     end
@@ -28,38 +28,38 @@ class Grep
       flag = 0
       o_file.each do |line|
         line1 = line
-        line1 = line.downcase unless registr
-        seacrh_word.downcase! unless registr
+        line1 = line.downcase unless registr_sensetive
+        seacrh_word.downcase! unless registr_sensetive
         index_line += 1
         if number
-          unless revert
-            result << "#{files[index_file]}:".chomp if (files.size > 1 && !line1.match(/#{seacrh_word}/).nil?)
-            result << "#{index_line}:#{line}" unless line1.match(/#{seacrh_word}/).nil?
-          else
+          if revert
             result << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/#{seacrh_word}/).nil?)
             result << "#{index_line}:#{line}" if line1.match(/#{seacrh_word}/).nil?
+          else
+            result << "#{files[index_file]}:".chomp if (files.size > 1 && !line1.match(/#{seacrh_word}/).nil?)
+            result << "#{index_line}:#{line}" unless line1.match(/#{seacrh_word}/).nil?
           end
         elsif file_name
-          unless revert
-            flag = 1 unless line1.match(/#{seacrh_word}/).nil?
-          else
+          if revert
             flag = 1 if line1.match(/#{seacrh_word}/).nil?
+          else
+            flag = 1 unless line1.match(/#{seacrh_word}/).nil?
           end
         elsif lines
-          unless revert
+          if revert
+            rresult << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/^#{seacrh_word}$/).nil?)
+            result << "#{line}" unless line1.match(/^#{seacrh_word}$/)
+          else
             result << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/^#{seacrh_word}$/))
             result << "#{line}" if line1.match(/^#{seacrh_word}$/)
-          else
-            result << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/^#{seacrh_word}$/).nil?)
-            result << "#{line}" unless line1.match(/^#{seacrh_word}$/)
           end
         else
-          unless revert
-            result << "#{files[index_file]}:".chomp if (files.size > 1 && !line1.match(/#{seacrh_word}/).nil?)
-            result << "#{line}" unless line1.match(/#{seacrh_word}/).nil?
-          else
+          if revert
             result << "#{files[index_file]}:".chomp if (files.size > 1 && line1.match(/#{seacrh_word}/).nil?)
             result << "#{line}" if line1.match(/#{seacrh_word}/).nil?
+          else
+            result << "#{files[index_file]}:".chomp if (files.size > 1 && !line1.match(/#{seacrh_word}/).nil?)
+            result << "#{line}" unless line1.match(/#{seacrh_word}/).nil?
           end
         end
       end
