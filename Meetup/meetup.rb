@@ -11,6 +11,7 @@ class Meetup
   def initialize(month, year)
     @month = month
     @year = year
+    @day_hash = {monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6, sunday: 7}
   end
 
   def day(name_of_day, attribute)
@@ -18,19 +19,19 @@ class Meetup
     attr_index = 0
     case name_of_day
       when :monday
-        day_index = 1
+        day_index = @day_hash[:monday]
       when :tuesday
-        day_index = 2
+        day_index = @day_hash[:tuesday]
       when :wednesday
-        day_index = 3
+        day_index = @day_hash[:wednesday]
       when :thursday
-        day_index = 4
+        day_index = @day_hash[:thursday]
       when :friday
-        day_index = 5
+        day_index = @day_hash[:friday]
       when :saturday
-        day_index = 6
+        day_index = @day_hash[:saturday]
       when :sunday
-        day_index = 7
+        day_index = @day_hash[:sunday]
     end
     case attribute
     when :first
