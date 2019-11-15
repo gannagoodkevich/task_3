@@ -5,4 +5,4 @@ class I
 end
 
 c, m, arg = gets.split
-I.new.send(:like, arg)
+Object.const_get(c).new.send(m, arg)
