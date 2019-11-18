@@ -1,139 +1,180 @@
 class Grep
-  def Grep.grep(seacrh_word, flags, files)
-    result = ""
-    index_file = 0
-    @registr_sensetive = true
-    @revert = false
-    if flags.size > 0
-      flags.each do |flag|
-        puts "Hola", send("set_#{flag}") if respond_to?("set_#{flag}")
-        puts result = send("key#{flag.gsub('-', '')}", seacrh_word) if respond_to?("key#{flag.gsub('-', '')}")
-        if result == ""
-          index_file = 0
-          files.each do |curr_file|
-            o_file = File.open(curr_file, "r")
-            index_line = 0
-            o_file.each do |line|
-              line1 = line
-              line1 = line.downcase unless @registr_sensetive
-              seacrh_word.downcase! unless @registr_sensetive
-              index_line += 1
-              if @revert
-                result << "#{files[index_file]}:".chomp if files.size > 1 && line1.match(/#{seacrh_word}/).nil?
-                result << "#{line}" if line1.match(/#{seacrh_word}/).nil?
-              else
-                result << "#{files[index_file]}:".chomp if files.size > 1 && !line1.match(/#{seacrh_word}/).nil?
-                result << "#{line}" unless line1.match(/#{seacrh_word}/).nil?
-              end
-            end
-            o_file.close
-            index_file += 1
-          end
-        end
-      end
-    else
+  class << self
+    def grep(search_word, flags, files)
+      @registr_sensetive = true
+      @revert = false
+      @strict_match = false
+      result = if !flags.empty?
+                 handle_flags(flags, search_word, files)
+               else
+                 handle_empty_flags(search_word, files)
+               end
+      result.chomp
+    end
+
+    def key_n(search_word, files)
+      result = ''
       index_file = 0
       files.each do |curr_file|
-        o_file = File.open(curr_file, "r")
+        o_file = File.open(curr_file, 'r')
         index_line = 0
         o_file.each do |line|
           line1 = line
           line1 = line.downcase unless @registr_sensetive
-          seacrh_word.downcase! unless @registr_sensetive
+          search_word.downcase! unless @registr_sensetive
+          index_line += 1
+          result << if @revert
+                      reverse_n(search_word, files, index_file, index_line, line1, line)
+                    else
+                      normal_n(search_word, files, index_file, index_line, line1, line)
+                    end
+        end
+        o_file.close
+        index_file += 1
+      end
+      result
+    end
+
+    def key_l(search_word, files)
+      result = ''
+      index_file = 0
+      files.each do |curr_file|
+        o_file = File.open(curr_file, 'r')
+        index_line = 0
+        flag = 0
+        o_file.each do |line|
+          line1 = line
+          line1 = line.downcase unless @registr_sensetive
+          search_word.downcase! unless @registr_sensetive
           index_line += 1
           if @revert
-            result << "#{files[index_file]}:".chomp if files.size > 1 && line1.match(/#{seacrh_word}/).nil?
-            result << "#{line}" if line1.match(/#{seacrh_word}/).nil?
+            flag = 1 if line1.match(/#{search_word}/).nil?
           else
-            result << "#{files[index_file]}:".chomp if files.size > 1 && !line1.match(/#{seacrh_word}/).nil?
-            result << "#{line}" unless line1.match(/#{seacrh_word}/).nil?
+            flag = 1 unless line1.match(/#{search_word}/).nil?
+          end
+        end
+        o_file.close
+        result << "#{files[index_file]}\n" if flag == 1
+        index_file += 1
+      end
+      result
+    end
+
+    def set_x
+      @strict_match = true
+    end
+
+    def set_i
+      @registr_sensetive = false
+    end
+
+    def set_v
+      @revert = true
+    end
+
+    private
+
+    def handle_empty_line(search_word, files)
+      result = ''
+      index_file = 0
+      files.each do |curr_file|
+        o_file = File.open(curr_file, 'r')
+        index_line = 0
+        o_file.each do |line|
+          line1 = line
+          line1 = line.downcase unless @registr_sensetive
+          search_word.downcase! unless @registr_sensetive
+          index_line += 1
+          if @revert
+            if files.size > 1 && line1.match(/#{search_word}/).nil?
+              result << "#{files[index_file]}:".chomp
+            end
+            if @strict_match
+              result << line unless line1.match(/^#{search_word}$/)
+            else
+              result << "#{line}" if line1.match(/#{search_word}/).nil?
+            end
+          else
+            if files.size > 1 && !line1.match(/#{search_word}/).nil?
+              result << "#{files[index_file]}:".chomp
+            end
+            if @strict_match
+              result << line if line1.match(/^#{search_word}$/)
+            else
+              result << line unless line1.match(/#{search_word}/).nil?
+            end
           end
         end
         o_file.close
         index_file += 1
       end
+      result
     end
-    result.chomp
-  end
 
-  def key_n(seacrh_word, files)
-    index_file = 0
-    files.each do |curr_file|
-      o_file = File.open(curr_file, "r")
-      index_line = 0
-      o_file.each do |line|
-        line1 = line
-        line1 = line.downcase unless @registr_sensetive
-        seacrh_word.downcase! unless @registr_sensetive
-        index_line += 1
-        if @revert
-          result << "#{files[index_file]}:".chomp if files.size > 1 && line1.match(/#{seacrh_word}/).nil?
-          result << "#{index_line}:#{line}" if line1.match(/#{seacrh_word}/).nil?
-        else
-          result << "#{files[index_file]}:".chomp if files.size > 1 && !line1.match(/#{seacrh_word}/).nil?
-          result << "#{index_line}:#{line}" unless line1.match(/#{seacrh_word}/).nil?
+    def handle_empty_flags(search_word, files)
+      result = ''
+      index_file = 0
+      files.each do |curr_file|
+        o_file = File.open(curr_file, 'r')
+        index_line = 0
+        o_file.each do |line|
+          line1 = line
+          index_line += 1
+          if files.size > 1 && !line1.match(/#{search_word}/).nil?
+            result << "#{files[index_file]}:".chomp
+          end
+          result << line unless line1.match(/#{search_word}/).nil?
+        end
+        o_file.close
+        index_file += 1
+      end
+      result
+    end
+
+    def handle_flags(flags, search_word, files)
+      result = ''
+      flags.each do |flag|
+        if respond_to?("set_#{flag.gsub('-', '')}")
+          send("set_#{flag.gsub('-', '')}")
         end
       end
-      o_file.close
-      index_file += 1
-    end
-    result
-  end
-
-  def key_l(seacrh_word, files)
-    flag = 0
-    index_file =0
-    files.each do |curr_file|
-      o_file = File.open(curr_file, "r")
-      index_line = 0
-      flag = 0
-      o_file.each do |line|
-        line1 = line
-        line1 = line.downcase unless @registr_sensetive
-        seacrh_word.downcase! unless @registr_sensetive
-        index_line += 1
-        if @revert
-          flag = 1 if line1.match(/#{seacrh_word}/).nil?
-        else
-          flag = 1 unless line1.match(/#{seacrh_word}/).nil?
+      flags.each do |flag|
+        if respond_to?("key_#{flag.gsub('-', '')}")
+          result = send("key_#{flag.gsub('-', '')}", search_word, files)
         end
       end
-      o_file.close
-      index_file += 1
+      result = handle_empty_line(search_word, files) if result == ''
+      result
     end
-    result << "#{files[index_file]}\n" if flag == 1
-    result
-  end
 
-  def key_x(seacrh_word, files)
-    index_file = 0
-    files.each do |curr_file|
-      o_file = File.open(curr_file, "r")
-      index_line = 0
-      o_file.each do |line|
-        line1 = line
-        line1 = line.downcase unless @registr_sensetive
-        seacrh_word.downcase! unless @egistr_sensetive
-        index_line += 1
-        if @revert
-          result << "#{files[index_file]}:".chomp if files.size > 1 && line1.match(/^#{seacrh_word}$/).nil?
-          result << line unless line1.match(/^#{seacrh_word}$/)
-        else
-          result << "#{files[index_file]}:".chomp if files.size > 1 && line1.match(/^#{seacrh_word}$/)
-          result << line if line1.match(/^#{seacrh_word}$/)
+    def reverse_n(search_word, files, index_file, index_line, line1, line)
+      result = ''
+      if files.size > 1 && line1.match(/#{search_word}/).nil?
+        result << "#{files[index_file]}:".chomp
+      end
+      if @strict_match
+        result << "#{index_line}:#{line}" unless line1.match(/^#{search_word}$/)
+      else
+        result << "#{index_line}:#{line}" if line1.match(/#{search_word}/).nil?
+      end
+      result
+    end
+
+    def normal_n(search_word, files, index_file, index_line, line1, line)
+      result = ''
+      if files.size > 1 && !line1.match(/#{search_word}/).nil?
+        result << "#{files[index_file]}:".chomp
+      end
+      if @strict_match
+        if line1.match(/^#{search_word}$/)
+          result << "#{index_line}:#{line}"
+        end
+      else
+        unless line1.match(/#{search_word}/).nil?
+          result << "#{index_line}:#{line}"
         end
       end
-      o_file.close
-      index_file += 1
+      result
     end
-    result
-  end
-
-  def set_i
-    @registr_sensetive = false
-  end
-
-  def set_v
-    @revert = true
   end
 end
