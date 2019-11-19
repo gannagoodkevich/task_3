@@ -1,16 +1,16 @@
 class I
   def like arg
-    puts "%s %s %s" % [self.class, self.class.instance_methods(false), arg]
+    puts '%s %s %s' % [self.class, self.class.instance_methods(false), arg]
   end
 end
 
 c, m, arg = gets.split
 
 module M
-  define_method(:like) do |arg|
+  method_name = TOPLEVEL_BINDING.eval('m')
+  define_method(method_name) do |arg|
     middle = self.class.instance_methods(false).pop
-    puts middle
-    puts self.class.to_s << " " << middle.to_s << " " << arg.to_s
+    puts self.class.to_s << ' ' << middle.to_s << ' ' << arg.to_s
   end
 end
 
