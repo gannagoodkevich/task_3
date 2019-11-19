@@ -4,12 +4,15 @@ class I
   end
 end
 
+c, m, arg = gets.split
+
 module M
-  def like arg
+  define_method(:like) do |arg|
     middle = self.class.instance_methods(false).pop
+    puts middle
     puts self.class.to_s << " " << middle.to_s << " " << arg.to_s
   end
 end
-c, m, arg = gets.split
+
 Object.const_get(c).prepend(M)
 Object.const_get(c).new.send(m, arg)
