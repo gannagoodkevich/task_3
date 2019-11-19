@@ -2,13 +2,13 @@ some_class = Class.new(super_class=String)
 
 MaskedString = some_class
 
-MaskedString.instance_eval do
+MaskedString.class_eval do
   define_singleton_method(:tr_vowel) do |str|
     str.tr 'aeiou', '*'
   end
 end
 
-MaskedString.class_eval do
+MaskedString.instance_eval do
   define_method(:tr_vowel) do
     tr 'aeiou', '*'
   end
