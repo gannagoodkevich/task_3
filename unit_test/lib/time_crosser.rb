@@ -1,4 +1,4 @@
-#require 'pry'
+require 'pry'
 
 class TimeCrosser
   def initialize(time_intervals)
@@ -12,20 +12,20 @@ class TimeCrosser
     while flag == 0
       break if intervals.size == 1
       @result = []
+      flag = 1
       prev_interval = intervals.shift
       #puts intervals
+      #binding.pry
       intervals.each do |interval|
-        #binding.pry
-        flag = 1 unless compare(prev_interval, interval)
-        #puts compare(prev_interval, interval)
+        flag = 0 if compare(prev_interval, interval)
         prev_interval = interval
       end
       puts "Hola"
-      puts intervals
-      #break if flag == 1
       intervals = @result
+      puts @result
     end
     #puts @result
+    puts "--ANS--"
     @result
   end
 
@@ -42,26 +42,20 @@ class TimeCrosser
   def compare_time(time_start_first, time_start_second, time_end_first, time_end_second)
     answer = false
     if time_start_first[0] > time_start_second[0] && time_end_first[0] < time_end_second[0]
-      @result << convert_result(time_start_first, time_end_second)
-      answer = true
-    end
-    if time_start_first[0] < time_start_second[0] && time_end_first[0] < time_end_second[0]
       @result << convert_result(time_start_second, time_end_second)
       answer = true
     end
-    if time_start_first[0] < time_start_second[0] && time_end_first[0] > time_end_second[0]
-      @result << convert_result(time_start_second, time_end_first)
+    if time_start_first[0] < time_start_second[0] && time_end_first[0] < time_end_second[0]
+      @result << convert_result(time_start_first, time_end_second)
       answer = true
     end
-    if time_start_first[0] > time_start_second[0] && time_end_first[0] > time_end_second[0]
+    if time_start_first[0] < time_start_second[0] && time_end_first[0] > time_end_second[0]
       @result << convert_result(time_start_first, time_end_first)
       answer = true
     end
-    if time_start_second[0] == time_end_first[0]
-      if compare_minutes(time_end_first[1], time_start_second[1])
-        @result << convert_result(time_start_first, time_end_second)
-        answer = true
-      end
+    if time_start_first[0] > time_start_second[0] && time_end_first[0] > time_end_second[0]
+      @result << convert_result(time_start_second, time_end_first)
+      answer = true
     end
     if time_start_first[0] < time_start_second[0] && time_end_first[0] < time_end_second[0]
       answer = false
@@ -80,4 +74,4 @@ class TimeCrosser
   end
 end
 
-time = TimeCrosser.new([%w[13:20 15:00], %w[12:00 14:10]]).match_time_intervals
+time = TimeCrosser.new([%w[13:20 15:00], %w[12:00 14:10], %w[11:00 12:10]]).match_time_intervals
