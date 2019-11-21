@@ -7,11 +7,11 @@ describe 'Job' do
 
   describe '#feed' do
     it 'feed dog' do
-      allow(job).to receive(:pay)
+      allow(job).to receive(:pay).with(human)
                           .and_return(human.pay)
-      expect(job).to receive(:pay)
+      allow(job).to receive(:pay).with(human)
 
-      expect(job.pay(human)).to eq("The human is happy")
+      job.pay(human)
     end
   end
 end
@@ -22,7 +22,7 @@ describe 'Dog' do
 
   describe '#feed' do
     it 'feed dog' do
-      allow(human).to receive(:feed)
+      allow(human).to receive(:feed).with(dog)
                           .and_return(dog.feed)
       expect(human).to receive(:feed)
 
