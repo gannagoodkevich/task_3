@@ -64,36 +64,38 @@ class TimeCrosser
 
   def choose_result_interval(time_start_first, time_start_second, time_end_first, time_end_second)
     if time_start_first >= time_start_second && time_end_first < time_end_second
-      if time_start_first == time_start_second && @time_start_first != @time_start_second
-        choose_result_interval(@time_start_first[1], @time_start_second[1], @time_end_first[0], @time_end_second[0])
-      else
-        @result << convert_result(@time_start_second, @time_end_second)
-      end
+      checking_for_equality(time_start_first, time_start_second, :beginning, @time_start_second, @time_end_second)
     end
     if time_start_first < time_start_second && time_end_first < time_end_second
       @result << convert_result(@time_start_first, @time_end_second)
     end
     if time_start_first < time_start_second && time_end_first >= time_end_second
-      if time_end_first == time_end_second && @time_end_first != @time_end_second
-        choose_result_interval(@time_start_first[0], @time_start_second[0], @time_end_first[1], @time_end_second[1])
-      else
-        @result << convert_result(@time_start_first, @time_end_first)
-      end
+      checking_for_equality(time_end_first, time_end_second, :ending, @time_start_first, @time_end_first)
     end
     if time_start_first >= time_start_second && time_end_first >= time_end_second
-      if time_start_first == time_start_second && @time_start_first != @time_start_second
-        choose_result_interval(@time_start_first[1], @time_start_second[1], @time_end_first[0], @time_end_second[0])
-      elsif time_end_first == time_end_second && @time_end_first != @time_end_second
-        choose_result_interval(@time_start_first[0], @time_start_second[0], @time_end_first[1], @time_end_second[1])
-      else
-        @result << convert_result(@time_start_second, @time_end_first)
-      end
+      checking_for_equality(time_start_first, time_start_second, :beginning, @time_start_second, @time_end_first)
+      checking_for_equality(time_end_first, time_end_second, :ending, @time_start_second, @time_end_first)
     end
   end
 
   def convert_result(time_first, time_second)
     %W[#{time_first[0]}:#{time_first[1]} #{time_second[0]}:#{time_second[1]}]
   end
-end
 
-time = TimeCrosser.new([%w[13:20 15:00], %w[12:00 14:10], %w[11:00 12:10]]).match_time_intervals
+  def checking_for_equality(comp_time_first, comp_time_second, time_type, answer_first, answer_second)
+    case time_type
+    when :beginning
+      if comp_time_first == comp_time_second && @time_start_first != @time_start_second
+        choose_result_interval(@time_start_first[1], @time_start_second[1], @time_end_first[0], @time_end_second[0])
+      else
+        @result << convert_result(answer_first, answer_second)
+      end
+    when :ending
+      if comp_time_first == comp_time_second && @time_end_first != @time_end_second
+        choose_result_interval(@time_start_first[0], @time_start_second[0], @time_end_first[1], @time_end_second[1])
+      else
+        @result << convert_result(answer_first, answer_second)
+      end
+    end
+  end
+end
