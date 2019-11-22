@@ -1,21 +1,28 @@
 class Human
+
+  def initialize(pet)
+    @pet = pet
+  end
+  
   def pay
     "The human is happy"
   end
 
-  def feed(dog)
-    dog.feed
+  def feed
+    @pet.eat
   end
 end
 
 class Dog
-  def feed
+  def eat
     "Dog is happy"
   end
 end
 
 class Job
   def pay(human)
-    human.take_salery
+    human.pay
   end
 end
+
+puts Human.new(Dog.new).feed

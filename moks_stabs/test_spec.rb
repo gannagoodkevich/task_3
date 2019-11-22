@@ -3,30 +3,27 @@ require_relative 'human.rb'
 
 describe 'Job' do
   let(:job) { double('job') }
-  let(:human) { Human.new }
+  let(:human) { double('human') }
 
   describe '#feed' do
     it 'feed dog' do
       allow(job).to receive(:pay).with(human)
-                          .and_return(human.pay)
-      allow(job).to receive(:pay).with(human)
+      allow(human).to receive(:pay)
 
       job.pay(human)
     end
   end
 end
 
-describe 'Dog' do
-  let(:human) { double('human') }
-  let(:dog) { Dog.new }
+describe 'Human' do
+  let(:pet) { double('pet') }
+  let(:human) { Human.new(pet) }
 
   describe '#feed' do
     it 'feed dog' do
-      allow(human).to receive(:feed).with(dog)
-                          .and_return(dog.feed)
-      expect(human).to receive(:feed)
+      expect(pet).to receive(:eat)
 
-      expect(human.feed(dog)).to eq("Dog is happy")
+      human.feed
     end
   end
 end
