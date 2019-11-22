@@ -9,13 +9,12 @@ class TimeCrosser
   def match_time_intervals
     flag = 0
     intervals = @time_intervals
-    while flag == 0
+    while flag.zero?
       break if intervals.size == 1
+
       @result = []
       flag = 1
       prev_interval = intervals.shift
-      #puts intervals
-      #binding.pry
       intervals.each do |interval|
         if compare(prev_interval, interval)
           @result.delete(prev_interval) if flag == 1
@@ -23,16 +22,12 @@ class TimeCrosser
         end
         prev_interval = interval
       end
-      puts "Hola"
       intervals =  @result.uniq
-      puts @result
     end
-    #puts @result
-    puts "--ANS--"
     if @result == []
       @result = @time_intervals
     end
-   @result.uniq
+    @result.uniq
   end
 
   private
