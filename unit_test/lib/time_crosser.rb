@@ -17,56 +17,78 @@ class TimeCrosser
       #puts intervals
       #binding.pry
       intervals.each do |interval|
-        flag = 0 if compare(prev_interval, interval)
+        if compare(prev_interval, interval)
+          @result.delete(prev_interval) if flag == 1
+          flag = 0
+        end
         prev_interval = interval
       end
       puts "Hola"
-      intervals = @result
+      intervals =  @result.uniq
       puts @result
     end
     #puts @result
     puts "--ANS--"
-    @result
+    if @result == []
+      @result = @time_intervals
+    end
+   @result.uniq
   end
 
   private
 
   def compare(first_interval, second_interval)
-    time_start_first = first_interval[0].split(':')
-    time_end_first = first_interval[1].split(':')
-    time_start_second = second_interval[0].split(':')
-    time_end_second = second_interval[1].split(':')
-    compare_time(time_start_first, time_start_second, time_end_first, time_end_second)
+    @time_start_first = first_interval[0].split(':')
+    @time_end_first = first_interval[1].split(':')
+    @time_start_second = second_interval[0].split(':')
+    @time_end_second = second_interval[1].split(':')
+    compare_time
   end
 
-  def compare_time(time_start_first, time_start_second, time_end_first, time_end_second)
+  def compare_time
     answer = false
-    if time_start_first[0] > time_start_second[0] && time_end_first[0] < time_end_second[0]
-      @result << convert_result(time_start_second, time_end_second)
+    if @time_start_second[0] <= @time_end_first[0] && @time_start_first[0] <=  @time_end_second[0]
+      choose_result_interval(@time_start_first[0], @time_start_second[0], @time_end_first[0], @time_end_second[0])
       answer = true
-    end
-    if time_start_first[0] < time_start_second[0] && time_end_first[0] < time_end_second[0]
-      @result << convert_result(time_start_first, time_end_second)
-      answer = true
-    end
-    if time_start_first[0] < time_start_second[0] && time_end_first[0] > time_end_second[0]
-      @result << convert_result(time_start_first, time_end_first)
-      answer = true
-    end
-    if time_start_first[0] > time_start_second[0] && time_end_first[0] > time_end_second[0]
-      @result << convert_result(time_start_second, time_end_first)
-      answer = true
-    end
-    if time_start_first[0] < time_start_second[0] && time_end_first[0] < time_end_second[0]
+    else
       answer = false
-      @result << convert_result(time_start_first, time_end_first)
-      @result << convert_result(time_start_second, time_end_second)
+      @result << convert_result(@time_start_first, @time_end_first)
+      @result << convert_result(@time_start_second, @time_end_second)
     end
     answer
   end
 
   def compare_minutes(first_minutes, second_minutes)
     first_minutes >= second_minutes
+  end
+
+  def choose_result_interval(time_start_first, time_start_second, time_end_first, time_end_second)
+    if time_start_first >= time_start_second && time_end_first < time_end_second
+      if time_start_first == time_start_second && @time_start_first != @time_start_second
+        choose_result_interval(@time_start_first[1], @time_start_second[1], @time_end_first[0], @time_end_second[0])
+      else
+        @result << convert_result(@time_start_second, @time_end_second)
+      end
+    end
+    if time_start_first < time_start_second && time_end_first < time_end_second
+      @result << convert_result(@time_start_first, @time_end_second)
+    end
+    if time_start_first < time_start_second && time_end_first >= time_end_second
+      if time_end_first == time_end_second && @time_end_first != @time_end_second
+        choose_result_interval(@time_start_first[0], @time_start_second[0], @time_end_first[1], @time_end_second[1])
+      else
+        @result << convert_result(@time_start_first, @time_end_first)
+      end
+    end
+    if time_start_first >= time_start_second && time_end_first >= time_end_second
+      if time_start_first == time_start_second && @time_start_first != @time_start_second
+        choose_result_interval(@time_start_first[1], @time_start_second[1], @time_end_first[0], @time_end_second[0])
+      elsif time_end_first == time_end_second && @time_end_first != @time_end_second
+        choose_result_interval(@time_start_first[0], @time_start_second[0], @time_end_first[1], @time_end_second[1])
+      else
+        @result << convert_result(@time_start_second, @time_end_first)
+      end
+    end
   end
 
   def convert_result(time_first, time_second)
