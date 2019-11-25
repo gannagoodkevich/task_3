@@ -26,7 +26,7 @@ class Meetup
     when :last
       year = @date.month == LAST_MONTH ? @date.year + 1 : @date.year
       @date = Date.new(year, @date.month == LAST_MONTH ? 1 : @date.month + 1) - 1
-      @date -= 1 until @date.send("#{day}?")
+      @date -= 1 until @date.cwday == day_index
     end
     @date
   end
