@@ -11,8 +11,6 @@ end
 
 A.instance_eval do
   def my_class_vars
-    variable_i = Array.new
-    variable_c = Array.new
     variable_i = A.instance_variables
     variable_c = A.class_variables
     variable_i.each do |var|
@@ -22,28 +20,26 @@ A.instance_eval do
     end
     variable_c.each do |var|
       var =  var.to_sym
-      v = class_variable_get(var)
-      puts v
+      variable = class_variable_get(var)
+      puts variable
     end
   end
 end
 
 A.class_eval do
   def my_class_vars
-    variable_i = Array.new
-    variable_c = Array.new
     variable_i = A.instance_variables
     variable_c = A.class_variables
     variable_i.each do |var|
       var =  var.to_sym
-      v = instance_variable_get(var)
-      puts v
+      variable = instance_variable_get(var)
+      puts variable
     end
     variable_c.each do |var|
       var =  var.to_sym
-      v = self.class.class_variable_get(var)
-      puts v
-    end
+      variable = self.class.class_variable_get(var)
+      puts variable
+      end
   end
 end
 
