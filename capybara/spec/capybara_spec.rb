@@ -3,6 +3,7 @@ require 'capybara/rspec'
 require 'csv'
 
 describe 'Parse Onliner.by' do
+  let(:url_onliner) { 'https://onliner.by' }
   let(:tag_to_find_title) { 'div.news-header__title h1' }
   let(:tag_to_find_text) { 'div.news-text p' }
   let(:tag_to_find_image) { 'div.news-header__image' }
@@ -10,7 +11,7 @@ describe 'Parse Onliner.by' do
 
   scenario "Parse main news" do
     session1 = Capybara::Session.new(:selenium_chrome)
-    session1.visit('https://onliner.by')
+    session1.visit(url_onliner)
     session1.find_all('section.b-main-page-news-2__main-news article div h2 a').uniq do |link|
       if link[:href].to_s.match(/(forum)|(kurs)/).nil?
         session1 = Capybara::Session.new(:selenium_chrome)
@@ -30,7 +31,7 @@ describe 'Parse Onliner.by' do
 
   scenario "Parse secondary news" do
     session1 = Capybara::Session.new(:selenium_chrome)
-    session1.visit('https://onliner.by')
+    session1.visit(url_onliner)
     session1.find_all('section.b-main-page-news-2__secondary-news article h2 a').uniq do |link|
       if link[:href].to_s.match(/(forum)|(kurs)/).nil?
         session1 = Capybara::Session.new(:selenium_chrome)
@@ -50,7 +51,7 @@ describe 'Parse Onliner.by' do
 
   scenario "Parse teaser news" do
     session1 = Capybara::Session.new(:selenium_chrome)
-    session1.visit('https://onliner.by')
+    session1.visit(url_onliner)
     session1.find_all('li.b-teasers-2__teaser a').uniq do |link|
       if link[:href].to_s.match(/(forum)|(kurs)/).nil?
         session1 = Capybara::Session.new(:selenium_chrome)
@@ -70,7 +71,7 @@ describe 'Parse Onliner.by' do
 
   scenario "Parse list news" do
     session1 = Capybara::Session.new(:selenium_chrome)
-    session1.visit('https://onliner.by')
+    session1.visit(url_onliner)
     session1.find_all('ul.b-main-page-news-2__news-list li div h3 a').uniq do |link|
       if link[:href].to_s.match(/(forum)|(kurs)/).nil?
         session1 = Capybara::Session.new(:selenium_chrome)
