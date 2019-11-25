@@ -1,4 +1,5 @@
 .DS_Store
+Meetup/.idea/*
 queen-attack/.idea/
 /capybara/.idea/*
 moks_stabs/.idea/*
@@ -6,4 +7,3 @@ Meetup/.idea/*
 Grep/.idea/*
 metaprogramming/.idea/*
 Minesweeper/.idea/*
-
