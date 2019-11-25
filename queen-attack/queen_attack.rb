@@ -7,6 +7,7 @@ To get started with TDD, see the `README.md` file in your
 =end
 
 class Queens
+
   def initialize(hash)
     @hash = hash
     valid_hash_check
@@ -14,13 +15,7 @@ class Queens
   end
 
   def attack?
-    attack_colomn(@hash[:white][1], @hash[:black][1])
-    attack_row(@hash[:white][0], @hash[:black][0])
-    attack_right_upper_diagonal(@hash[:white][0], @hash[:white][1], @hash[:black][0], @hash[:black][1])
-    attack_right_bottom_diagonal(@hash[:white][0], @hash[:white][1], @hash[:black][0], @hash[:black][1])
-    attack_left_bottom_diagonal(@hash[:white][0], @hash[:white][1], @hash[:black][0], @hash[:black][1])
-    attack_left_upper_diagonal(@hash[:white][0], @hash[:white][1], @hash[:black][0], @hash[:black][1])
-    return true if @flag == 1
+    attack_on_line(@hash[:white][1], @hash[:black][1]) || attack_on_line(@hash[:white][0], @hash[:black][0]) || attack_diagonal(@hash[:white][0], @hash[:white][1], @hash[:black][0], @hash[:black][1])
   end
 
   private
@@ -33,52 +28,11 @@ class Queens
     end
   end
 
-  def attack_right_upper_diagonal(row_position_white, colomn_position_white, row_position_black, colomn_position_black)
-    i = 0
-    while row_position_white - i > 0 && colomn_position_white + i < 7
-      i += 1
-      if row_position_white - i == row_position_black && colomn_position_white + i == colomn_position_black
-        @flag = 1
-      end
-    end
+  def attack_diagonal(row_position_white, colomn_position_white, row_position_black, colomn_position_black)
+    (row_position_white - row_position_black).abs == (colomn_position_white - colomn_position_black).abs
   end
 
-  def attack_right_bottom_diagonal(row_position_white, colomn_position_white, row_position_black, colomn_position_black)
-    i = 0
-    while row_position_white + i < 7 && colomn_position_white + i < 7
-      i += 1
-      if row_position_white + i == row_position_black && colomn_position_white + i == colomn_position_black
-        @flag = 1
-      end
-    end
+  def attack_on_line(position_white, position_black)
+    position_white == position_black
   end
-
-  def attack_left_bottom_diagonal(row_position_white, colomn_position_white, row_position_black, colomn_position_black)
-    i = 0
-    while row_position_white + i < 7 && colomn_position_white - i > 0
-      i += 1
-      if row_position_white + i == row_position_black && colomn_position_white - i == colomn_position_black
-        @flag = 1
-      end
-    end
-  end
-
-  def attack_left_upper_diagonal(row_position_white, colomn_position_white, row_position_black, colomn_position_black)
-    i = 0
-    while row_position_white - i > 0 && colomn_position_white - i > 0
-      i += 1
-      if row_position_white - i == row_position_black && colomn_position_white - i == colomn_position_black
-        @flag = 1
-      end
-    end
-  end
-
-  def attack_row(row_position_white, row_position_black)
-    @flag = 1 if row_position_white == row_position_black
-  end
-
-  def attack_colomn(colomn_position_white, colomn_position_black)
-    @flag = 1 if colomn_position_white == colomn_position_black
-  end
-
 end
