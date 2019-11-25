@@ -7,84 +7,71 @@
 # `ruby/meetup` directory.
 require 'date'
 
+FIRST_DAY_MONTH = 1
+SECOND_WEEK_FIRST_DAY_MONTH = 8
+THIRD_WEEK_FIRST_DAY_MONTH = 15
+FOURTH_WEEK_FIRST_DAY_MONTH = 22
+FIRST_TEENTH_DAY_MONTH = 13
+LAST_DAY_MONTH = 31
+LAST_MONTH = 12
+
+
 class Meetup
   def initialize(month, year)
     @month = month
     @year = year
-    @day_hash = { monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6, sunday: 7 }
+    @day_hash = {monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6, sunday: 7}
   end
 
   def day(name_of_day, attribute)
-    day_index = send("#{name_of_day}_index")
-    send("#{attribute}_day", day_index)
-  end
-
-  def monday_index
-    @day_hash[:monday]
-  end
-
-  def tuesday_index
-    @day_hash[:tuesday]
-  end
-
-  def wednesday_index
-    @day_hash[:wednesday]
-  end
-
-  def thursday_index
-    @day_hash[:thursday]
-  end
-
-  def friday_index
-    @day_hash[:friday]
-  end
-
-  def saturday_index
-    @day_hash[:saturday]
-  end
-
-  def sunday_index
-    @day_hash[:sunday]
-  end
-
-  def first_day(day_index)
-    curr_date = Date.new(@year, @month, 1)
-    curr_date += 1 until curr_date.cwday == day_index
-    curr_date
-  end
-
-  def second_day(day_index)
-    curr_date = Date.new(@year, @month, 8)
-    curr_date += 1 until curr_date.cwday == day_index
-    curr_date
-  end
-
-  def third_day(day_index)
-    curr_date = Date.new(@year, @month, 15)
-    curr_date += 1 until curr_date.cwday == day_index
-    curr_date
-  end
-
-  def fourth_day(day_index)
-    curr_date = Date.new(@year, @month, 22)
-    curr_date += 1 until curr_date.cwday == day_index
-    curr_date
-  end
-
-  def last_day(day_index)
-    curr_date =
-      if @month == 12
-        Date.new(@year, @month, 31)
-      else
-        Date.new(@year, @month + 1, 1).prev_day
-      end
-    curr_date -= 1 until curr_date.cwday == day_index
-    curr_date
-  end
-
-  def teenth_day(day_index)
-    curr_date = Date.new(@year, @month, 13)
-    curr_date += 1 until curr_date.cwday == day_index
-    curr_date
+    day_index = 0
+    attr_index = 0
+    case name_of_day
+    when :monday
+      day_index = @day_hash[:monday]
+    when :tuesday
+      day_index = @day_hash[:tuesday]
+    when :wednesday
+      day_index = @day_hash[:wednesday]
+    when :thursday
+      day_index = @day_hash[:thursday]
+    when :friday
+      day_index = @day_hash[:friday]
+    when :saturday
+      day_index = @day_hash[:saturday]
+    when :sunday
+      day_index = @day_hash[:sunday]
+    end
+    case attribute
+    when :first
+      curr_date = Date.new(@year, @month, FIRST_DAY_MONTH)
+      curr_date += 1 until curr_date.cwday == day_index
+      return curr_date
+    when :second
+      curr_date = Date.new(@year, @month, SECOND_WEEK_FIRST_DAY_MONTH)
+      curr_date += 1 until curr_date.cwday == day_index
+      return curr_date
+    when :third
+      curr_date = Date.new(@year, @month, THIRD_WEEK_FIRST_DAY_MONTH)
+      curr_date += 1 until curr_date.cwday == day_index
+      return curr_date
+    when :fourth
+      curr_date = Date.new(@year, @month, FOURTH_WEEK_FIRST_DAY_MONTH)
+      curr_date += 1 until curr_date.cwday == day_index
+      curr_date
+    when :last
+      curr_date =
+        if @month == LAST_MONTH
+          Date.new(@year, @month, LAST_DAY_MONTH)
+        else
+          Date.new(@year, @month + 1, FIRST_DAY_MONTH).prev_day
+        end
+      curr_date -= 1 until curr_date.cwday == day_index
+      return curr_date
+    when :teenth
+      curr_date = Date.new(@year, @month, FIRST_TEENTH_DAY_MONTH)
+      curr_date += 1 until curr_date.cwday == day_index
+      curr_date
+    end
   end
 end
