@@ -8,7 +8,10 @@ class TimeCrosser
 
   def match_time_intervals
     flag = 0
-    intervals = @time_intervals
+    intervals = []
+    @time_intervals.each do |interval|
+      intervals << convert_to_range(interval[0], interval[1])
+    end
     while flag.zero?
       break if intervals.size == 1
 
@@ -16,81 +19,57 @@ class TimeCrosser
       flag = 1
       prev_interval = intervals.shift
       intervals.each do |interval|
+        @result = @result.flatten
         if compare(prev_interval, interval)
           @result.delete(prev_interval) if flag == 1
           flag = 0
         end
         prev_interval = interval
       end
-      intervals =  @result.uniq
+      intervals = @result.flatten.uniq
     end
-    if @result == []
-      @result = @time_intervals
-    end
-    @result.uniq
-  end
-
-  private
-
-  def compare(first_interval, second_interval)
-    @time_start_first = first_interval[0].split(':')
-    @time_end_first = first_interval[1].split(':')
-    @time_start_second = second_interval[0].split(':')
-    @time_end_second = second_interval[1].split(':')
-    compare_time
-  end
-
-  def compare_time
-    answer = false
-    if @time_start_second[0] <= @time_end_first[0] && @time_start_first[0] <=  @time_end_second[0]
-      choose_result_interval(@time_start_first[0], @time_start_second[0], @time_end_first[0], @time_end_second[0])
-      answer = true
-    else
-      answer = false
-      @result << convert_result(@time_start_first, @time_end_first)
-      @result << convert_result(@time_start_second, @time_end_second)
+    @result = @time_intervals if @result == []
+    answer = []
+    @result.flatten.uniq.each do |interval|
+      answer << convert_result(interval.begin, interval.end)
     end
     answer
   end
 
-  def compare_minutes(first_minutes, second_minutes)
-    first_minutes >= second_minutes
+  private
+
+  def compare(first, second)
+    flag = true
+    if first.cover?(second.begin) && first.cover?(second.end)
+      result = first
+    elsif second.cover?(first.begin) && second.cover?(first.end)
+      result = second
+    elsif first.cover?(second.begin) && second.cover?(first.end)
+      result = first.begin..second.end
+    elsif second.cover?(first.begin) && first.cover?(second.end)
+      result = second.begin..first.end
+    else
+      flag = false
+      result = []
+      result << first
+      result << second
+    end
+    @result << result
+    flag
   end
 
-  def choose_result_interval(time_start_first, time_start_second, time_end_first, time_end_second)
-    if time_start_first >= time_start_second && time_end_first < time_end_second
-      checking_for_equality(time_start_first, time_start_second, :beginning, @time_start_second, @time_end_second)
-    end
-    if time_start_first < time_start_second && time_end_first < time_end_second
-      @result << convert_result(@time_start_first, @time_end_second)
-    end
-    if time_start_first < time_start_second && time_end_first >= time_end_second
-      checking_for_equality(time_end_first, time_end_second, :ending, @time_start_first, @time_end_first)
-    end
-    if time_start_first >= time_start_second && time_end_first >= time_end_second
-      checking_for_equality(time_start_first, time_start_second, :beginning, @time_start_second, @time_end_first)
-      checking_for_equality(time_end_first, time_end_second, :ending, @time_start_second, @time_end_first)
-    end
+  def convert_to_range(begin_interval, end_interval)
+    begin_interval = begin_interval.split(':')
+    end_interval = end_interval.split(':')
+    begin_numeric = begin_interval[0].to_i * 100 + begin_interval[1].to_i
+    end_numeric = end_interval[0].to_i * 100 + end_interval[1].to_i
+    begin_numeric..end_numeric
   end
 
   def convert_result(time_first, time_second)
-    %W[#{time_first[0]}:#{time_first[1]} #{time_second[0]}:#{time_second[1]}]
-  end
-
-  def checking_for_equality(comp_time_first, comp_time_second, time_type, answer_first, answer_second)
-    case time_type
-    when :beginning
-      if comp_time_first == comp_time_second && @time_start_first != @time_start_second
-        choose_result_interval(@time_start_first[1], @time_start_second[1], @time_end_first[0], @time_end_second[0])
-      else
-        @result << convert_result(answer_first, answer_second)
-      end
-    when :ending
-      if comp_time_first == comp_time_second && @time_end_first != @time_end_second
-        choose_result_interval(@time_start_first[0], @time_start_second[0], @time_end_first[1], @time_end_second[1])
-      else
-        @result << convert_result(answer_first, answer_second)
-      end
-    end
+    time_first = [time_first / 100, time_first % 100]
+    time_second = [time_second / 100, time_second % 100]
+    time_interval = %W[#{time_first[0]}:#{time_first[1]} #{time_second[0]}:#{time_second[1]}]
+    time_interval.map { |interval| interval.gsub(':0', ':00') }
   end
 end
