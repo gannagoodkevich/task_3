@@ -1,0 +1,7 @@
+inherit_from: ~/.rvm/gems/default/gems/rubocop-0.76.0/config/default.yml
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 120
