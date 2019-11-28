@@ -1,81 +1,50 @@
 require 'pry'
 
 class TimeCrosser
+  YEAR = 2007
+  MONTH = 1
+  DAY = 1
   def initialize(time_intervals)
     @time_intervals = time_intervals
     @result = []
   end
 
   def match_time_intervals
-    flag = 0
     intervals = @time_intervals.map do |interval|
       convert_to_time(interval[0], interval[1])
     end
-    puts intervals.inspect
-    puts "INTERVALS"
-    puts intervals.inspect
-    puts "-^-"
-    @result = []
-    flag = 1
-    prev_interval = intervals.shift
-    intervals.each do |interval|
-      #@result = @result.flatten
-      interval = interval.flatten
-      puts "--PREV--"
-      puts prev_interval.inspect
-      puts "--INT--"
-      puts interval.inspect
-      puts "---"
-      if compare(prev_interval, interval) || compare(interval, prev_interval)
-        puts "HOLA"
-        puts @result.inspect
-        flag = 0
-      end
-      puts "INTERVALS"
-      puts intervals.inspect
-      puts "-^-"
+    find_matching_time(intervals)
+    @result = @time_intervals if @result.empty?
+    @result.flatten.uniq.each_slice(2).map do |time_f, time_s|
+      %W[#{time_f.strftime('%H:%M')} #{time_s.strftime('%H:%M')}]
     end
-    intervals = @result.uniq
-    puts "--RES--"
-    puts @result.uniq.flatten.inspect
-    @result = @time_intervals if @result == []
-    answer = []
-    @result.flatten.uniq.each_slice(2) do |time_f, time_s|
-      answer << %W[#{time_f} #{time_s}]
-    end
-    answer
   end
 
   private
 
-  def compare(first, second)
-    flag = true
-    result = first
-    puts first[0].inspect
-    puts second[0].inspect
-    puts "Star checking"
-    if first[0].between?(second[0], second[1])
-      result[0] = second[0]
-    end
-    if first[1].between?(second[0], second[1])
-      result[1] = second[1]
-    end
-    unless first[0].between?(second[0], second[1]) || first[1].between?(second[0], second[1])
-      flag = false
-      result = []
-    end
-    #puts flag
-    @result << result
-    flag
-  end
-
   def convert_to_time(begin_interval, end_interval)
     begin_interval = begin_interval.split(':')
     end_interval = end_interval.split(':')
-    return Time.gm(1999, 12, 10, begin_interval[0], begin_interval[1]), Time.gm(1999, 12, 10, end_interval[0], end_interval[1])
+    [Time.gm(YEAR, MONTH, DAY, begin_interval[0], begin_interval[1]), Time.gm(YEAR, MONTH, DAY, end_interval[0], end_interval[1])]
   end
 
-  def convert_result(time_first, time_second)
-    %W[#{time_first.strftime('%H:%M')} #{time_second.strftime('%H:%M')}]
+  def find_matching_time(intervals)
+    flag = 0
+    while flag.zero?
+      break if intervals.size == 1
+
+      @result = []
+      flag = 1
+      intervals.each_cons(2) do |prev_interval, interval|
+        if prev_interval[0] <= interval[1] && prev_interval[1] >= interval[0]
+          @result << prev_interval.concat(interval).minmax
+          @result.delete(prev_interval) if flag == 1
+          flag = 0
+        else
+          @result << prev_interval << interval
+        end
+      end
+      intervals = @result.uniq
+    end
   end
 end
